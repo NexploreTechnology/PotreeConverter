@@ -116,6 +116,7 @@ public:
 	string projection = "";
 	ConversionQuality quality = ConversionQuality::DEFAULT;
 	int storeSize = 20'000;
+	bool classified = false;
 
 
 	PotreeWriter(string workDir, ConversionQuality quality);

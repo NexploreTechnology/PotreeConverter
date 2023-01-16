@@ -54,6 +54,8 @@ public:
 	int hierarchyStepSize = -1;
 	long long numAccepted = 0;
 	string projection = "";
+	bool classified = false;
+	bool smartTerrain = false;
 
 	CloudJS() = default;
 
@@ -70,6 +72,8 @@ public:
 		Value &vSpacing = d["spacing"];
 		Value &vScale = d["scale"];
 		Value &vHierarchyStepSize = d["hierarchyStepSize"];
+		Value &vClassified = d["classified"];
+		Value &vSmartTerrain =d["smartTerrain"];
 
 
 		
@@ -100,8 +104,6 @@ public:
 				PointAttribute pa = PointAttribute::fromString(strpa);
 				pointAttributes.add(pa);
 			}
-
-
 		}else{
 			string pa = vPointAttributes.GetString();
 			if(pa == "LAS"){
@@ -115,6 +117,8 @@ public:
 		scale = vScale.GetDouble();
 		hierarchyStepSize = vHierarchyStepSize.GetInt();
 
+		classified = vClassified.GetBool();
+		smartTerrain = vSmartTerrain.GetBool();
 	}
 
 	string getString(){
@@ -171,6 +175,8 @@ public:
 		Value scale(this->scale);
 		Value hierarchyStepSize(this->hierarchyStepSize);
 
+		Value classified(this->classified);
+		Value smartTerrain(this->smartTerrain);
 
 		d.AddMember("version", version, d.GetAllocator());
 		d.AddMember("octreeDir", octreeDir, d.GetAllocator());
@@ -182,6 +188,8 @@ public:
 		d.AddMember("spacing", spacing, d.GetAllocator());
 		d.AddMember("scale", scale, d.GetAllocator());
 		d.AddMember("hierarchyStepSize", hierarchyStepSize, d.GetAllocator());
+		d.AddMember("classified", classified, d.GetAllocator());
+		d.AddMember("smartTerrain", smartTerrain, d.GetAllocator());
 
 		StringBuffer buffer;
 		PrettyWriter<StringBuffer> writer(buffer);
