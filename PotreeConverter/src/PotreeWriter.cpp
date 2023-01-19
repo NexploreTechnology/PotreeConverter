@@ -531,10 +531,6 @@ void PotreeWriter::add(Point &p){
 	store.push_back(p);
 	numAdded++;
 
-	if(p.classification > 0) {
-		classified = true;
-	}
-
 	if(store.size() > 10'000){
 		processStore();
 	}
@@ -581,7 +577,6 @@ void PotreeWriter::flush(){
 		cloudjs.tightBoundingBox = tightAABB;
 		cloudjs.numAccepted = numAccepted;
 		cloudjs.projection = projection;
-		cloudjs.classified = classified;
 
 		ofstream cloudOut(workDir + "/cloud.js", ios::out);
 		cloudOut << cloudjs.getString();
@@ -677,7 +672,6 @@ void PotreeWriter::loadStateFromDisk(){
 		this->scale = cloudjs.scale;
 		this->aabb = cloudjs.boundingBox;
 		this->numAccepted = cloudjs.numAccepted;
-		this->classified = cloudjs.classified;
 
 	}
 
