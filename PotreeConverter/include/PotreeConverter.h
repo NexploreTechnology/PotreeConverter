@@ -36,7 +36,10 @@ private:
 	PointReader *createPointReader(string source, PointAttributes pointAttributes);
 	void prepare();
 	FileInfos computeInfos();
+	void printInfos(FileInfos infos);
 	void generatePage(string name);
+	void recalculateScale();
+	void recalculateDiagonal();
 
 public:
 	float spacing;
@@ -67,6 +70,7 @@ public:
     PotreeConverter(string executablePath, string workDir, vector<string> sources);
 		
 	void convert();
+	void convert_bin_to_laz();
 
 };
 

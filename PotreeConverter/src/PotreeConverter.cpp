@@ -1,5 +1,3 @@
-
-
 #include <filesystem>
 
 #include "rapidjson/document.h"
@@ -13,6 +11,7 @@
 #include "PotreeException.h"
 #include "PotreeWriter.h"
 #include "LASPointWriter.hpp"
+#include "LASPointWriterModified.h"
 #include "BINPointWriter.hpp"
 #include "BINPointReader.hpp"
 #include "PlyPointReader.h"
@@ -341,6 +340,47 @@ FileInfos PotreeConverter::computeInfos(){
 	return infos;
 }
 
+void PotreeConverter::printInfos(FileInfos infos)
+{
+	cout << "AABB: {" << endl;
+	cout << "\t\"min\": " << aabb.min << "," << endl;
+	cout << "\t\"max\": " << aabb.max << "," << endl;
+	cout << "\t\"size\": " << aabb.size << endl;
+	cout << "}" << endl << endl;
+
+	aabb.makeCubic();
+	
+	cout << "cubicAABB: {" << endl;
+	cout << "\t\"min\": " << aabb.min << "," << endl;
+	cout << "\t\"max\": " << aabb.max << "," << endl;
+	cout << "\t\"size\": " << aabb.size << endl;
+	cout << "}" << endl << endl;
+
+	cout << "total number of points: " << infos.numPoints << endl;
+}
+
+void PotreeConverter::recalculateScale() {
+	if(this->scale == 0){
+		if(aabb.size.length() > 1'000'000){
+			this->scale = 0.01;
+		}else if(aabb.size.length() > 100'000){
+			this->scale = 0.001;
+		}else if(aabb.size.length() > 1){
+			this->scale = 0.001;
+		}else{
+			this->scale = 0.0001;
+		}
+	}
+	cout << "scale calculated: " << scale << endl;
+}
+
+void PotreeConverter::recalculateDiagonal() {
+	if (diagonalFraction != 0) {
+		spacing = (float)(aabb.size.length() / diagonalFraction);
+		cout << "spacing calculated from diagonal: " << spacing << endl;
+	}
+}
+
 void PotreeConverter::generatePage(string name){
 
 	string pagedir = this->workDir;
@@ -406,23 +446,23 @@ void PotreeConverter::generatePage(string name){
 	}
 
 	// change lasmap template
-	if(!this->projection.empty()){ 
-		ifstream in( mapTemplateSourcePath );
-		ofstream out( mapTemplateTargetPath );
+	//if(!this->projection.empty()){ 
+	//	ifstream in( mapTemplateSourcePath );
+	//	ofstream out( mapTemplateTargetPath );
 
-		string line;
-		while(getline(in, line)){
-			if(line.find("<!-- INCLUDE SOURCE -->") != string::npos){
-				out << "\tvar source = \"" << "pointclouds/" << name << "/sources.json" << "\";";
-			}else{
-				out << line << endl;
-			}
-			
-		}
+	//	string line;
+	//	while(getline(in, line)){
+	//		if(line.find("<!-- INCLUDE SOURCE -->") != string::npos){
+	//			out << "\tvar source = \"" << "pointclouds/" << name << "/sources.json" << "\";";
+	//		}else{
+	//			out << line << endl;
+	//		}
+	//		
+	//	}
 
-		in.close();
-		out.close();
-	}
+	//	in.close();
+	//	out.close();
+	//}
 
 	//{ // write settings
 	//	stringstream ssSettings;
@@ -700,6 +740,67 @@ void PotreeConverter::convert(){
 	cout << pointsProcessed << " points were processed and " << writer->numAccepted << " points ( " << percent << "% ) were written to the output. " << endl;
 
 	cout << "duration: " << (duration / 1000.0f) << "s" << endl;
+}
+
+void PotreeConverter::convert_bin_to_laz(){
+	// auto start = high_resolution_clock::now();
+
+	// Compute info from the original LAS file
+	prepare();
+	FileInfos infos = computeInfos();
+	aabb = infos.aabb;
+	printInfos(infos);
+	recalculateDiagonal();
+	recalculateScale();
+
+	// Get list of all .bin
+	std::cout << "Looking for all .bin files..." << std::endl;
+	std::vector<fs::path> bins;
+	long int cnt = 0;
+    for (const auto & entry : fs::recursive_directory_iterator(workDir)) {
+		fs::path path = entry.path();
+		if(fs::is_regular_file(path)){
+			if (path.extension() == ".bin") {
+				bins.push_back(path);
+				cnt++;
+			}
+		}
+		// if (cnt > 10) //TODO
+		// 	break;
+	}
+	std::cout << std::to_string(cnt) << " .bin files found" << std::endl;
+
+	// Convert all .bin to .laz
+	for (size_t i = 0; i < bins.size(); i++) {
+		if((i % (1'000)) == 0){
+			int percent = 100.0f * float(i) / float(bins.size());
+			std::cout << "Converted " << i << " / " << bins.size() << " (" << percent << "%)" << std::endl;
+		}
+
+		fs::path bin_file = bins[i];
+		fs::path laz_file = bins[i];
+		laz_file.replace_extension(".laz");
+
+		BINPointReader reader(bin_file.string(), aabb, scale, pointAttributes);
+		std::vector<Point> points;
+		while(reader.readNextPoint()){
+			Point p = reader.getPoint();
+			points.push_back(p);
+		}
+		reader.close();
+		
+		LASPointWriterModified lasWriter;
+		lasWriter.writePoints(laz_file, aabb, scale, points);
+	}
+
+	// auto end = high_resolution_clock::now();
+	// long long duration = duration_cast<milliseconds>(end-start).count();
+
+	cout << endl;
+	cout << "conversion finished" << endl;
+	// cout << pointsProcessed << " points were processed and " << writer->numAccepted << " points ( " << percent << "% ) were written to the output. " << endl;
+
+	// cout << "duration: " << (duration / 1000.0f) << "s" << endl;
 }
 
 }
