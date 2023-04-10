@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <omp.h>
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -743,7 +744,7 @@ void PotreeConverter::convert(){
 }
 
 void PotreeConverter::convert_bin_to_laz(){
-	// auto start = high_resolution_clock::now();
+	auto start = high_resolution_clock::now();
 
 	// Compute info from the original LAS file
 	prepare();
@@ -757,7 +758,7 @@ void PotreeConverter::convert_bin_to_laz(){
 	std::cout << "Looking for all .bin files..." << std::endl;
 	std::vector<fs::path> bins;
 	long int cnt = 0;
-    for (const auto & entry : fs::recursive_directory_iterator(workDir)) {
+	for (const auto & entry : fs::recursive_directory_iterator(workDir)) {
 		fs::path path = entry.path();
 		if(fs::is_regular_file(path)){
 			if (path.extension() == ".bin") {
@@ -765,12 +766,11 @@ void PotreeConverter::convert_bin_to_laz(){
 				cnt++;
 			}
 		}
-		// if (cnt > 10) //TODO
-		// 	break;
 	}
 	std::cout << std::to_string(cnt) << " .bin files found" << std::endl;
 
 	// Convert all .bin to .laz
+	#pragma omp parallel for
 	for (size_t i = 0; i < bins.size(); i++) {
 		if((i % (1'000)) == 0){
 			int percent = 100.0f * float(i) / float(bins.size());
@@ -793,14 +793,12 @@ void PotreeConverter::convert_bin_to_laz(){
 		lasWriter.writePoints(laz_file, aabb, scale, points);
 	}
 
-	// auto end = high_resolution_clock::now();
-	// long long duration = duration_cast<milliseconds>(end-start).count();
+	auto end = high_resolution_clock::now();
+	long long duration = duration_cast<milliseconds>(end-start).count();
 
-	cout << endl;
 	cout << "conversion finished" << endl;
-	// cout << pointsProcessed << " points were processed and " << writer->numAccepted << " points ( " << percent << "% ) were written to the output. " << endl;
-
-	// cout << "duration: " << (duration / 1000.0f) << "s" << endl;
+	cout << bins.size() << " files were processed" << endl;
+	cout << "duration: " << (duration / 1000.0f) << "s" << endl;
 }
 
 }
