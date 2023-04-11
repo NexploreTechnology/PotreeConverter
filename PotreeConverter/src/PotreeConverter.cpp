@@ -801,6 +801,10 @@ void PotreeConverter::convert_bin_to_laz(){
 	}
 	cout << "All *.bin files removed" << endl;
 
+	// TODO
+	// Edit cloud.js to set "pointAttributes": "LAZ"
+	// I'm doing it in python, it's way easier, but doing it here would be more self contained
+
 	auto end = high_resolution_clock::now();
 	long long duration = duration_cast<milliseconds>(end-start).count();
 
