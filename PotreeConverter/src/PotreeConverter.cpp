@@ -794,12 +794,12 @@ void PotreeConverter::convert_bin_to_laz(){
 	}
 
 	// Remove all .bin
-	// cout << "Removing all *.bin files ..." << endl;
-	// #pragma omp parallel for
-	// for (size_t i = 0; i < bins.size(); i++) {
-	// 	std::filesystem::remove(bins[i]);
-	// }
-	// cout << "All *.bin files removed" << endl;
+	cout << "Removing all *.bin files ..." << endl;
+	#pragma omp parallel for
+	for (size_t i = 0; i < bins.size(); i++) {
+		std::filesystem::remove(bins[i]);
+	}
+	cout << "All *.bin files removed" << endl;
 
 	auto end = high_resolution_clock::now();
 	long long duration = duration_cast<milliseconds>(end-start).count();
