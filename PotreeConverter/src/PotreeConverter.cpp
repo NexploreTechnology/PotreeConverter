@@ -1,5 +1,4 @@
 #include <filesystem>
-#include <omp.h>
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -770,7 +769,6 @@ void PotreeConverter::convert_bin_to_laz(){
 	std::cout << std::to_string(cnt) << " .bin files found" << std::endl;
 
 	// Convert all .bin to .laz
-	#pragma omp parallel for
 	for (size_t i = 0; i < bins.size(); i++) {
 		if((i % (1'000)) == 0){
 			int percent = 100.0f * float(i) / float(bins.size());
@@ -795,7 +793,6 @@ void PotreeConverter::convert_bin_to_laz(){
 
 	// Remove all .bin
 	cout << "Removing all *.bin files ..." << endl;
-	#pragma omp parallel for
 	for (size_t i = 0; i < bins.size(); i++) {
 		std::filesystem::remove(bins[i]);
 	}
