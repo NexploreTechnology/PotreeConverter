@@ -66,6 +66,7 @@ public:
     string executablePath;
 	int storeSize = 20'000;
 	int flushLimit = 10'000'000;
+	bool saveCoordsAsDecimal = false;
 
     PotreeConverter(string executablePath, string workDir, vector<string> sources);
 		

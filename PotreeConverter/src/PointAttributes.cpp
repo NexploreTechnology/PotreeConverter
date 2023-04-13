@@ -15,10 +15,14 @@ const PointAttribute PointAttribute::GPS_TIME				= PointAttribute(7, "gps-time",
 const PointAttribute PointAttribute::NORMAL_SPHEREMAPPED	= PointAttribute(8, "NORMAL_SPHEREMAPPED",	ATTRIBUTE_TYPE_INT8, 2, 2);
 const PointAttribute PointAttribute::NORMAL_OCT16			= PointAttribute(9, "NORMAL_OCT16",			ATTRIBUTE_TYPE_INT8, 2, 2);
 const PointAttribute PointAttribute::NORMAL					= PointAttribute(10, "NORMAL",				ATTRIBUTE_TYPE_FLOAT, 3, 12);
+const PointAttribute PointAttribute::POSITION_CARTESIAN_DOUBLE = PointAttribute(11, "POSITION_CARTESIAN_DOUBLE",	ATTRIBUTE_TYPE_DOUBLE, 3, 24);
+
 
 PointAttribute PointAttribute::fromString(string name){
 	if(name == "POSITION_CARTESIAN"){
 		return PointAttribute::POSITION_CARTESIAN;
+	}else if(name == "POSITION_CARTESIAN_DOUBLE"){
+		return PointAttribute::POSITION_CARTESIAN_DOUBLE;
 	}else if(name == "COLOR_PACKED"){
 		return PointAttribute::COLOR_PACKED;
 	}else if(name == "INTENSITY"){

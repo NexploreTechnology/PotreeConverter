@@ -66,6 +66,7 @@ struct PotreeArguments {
     string executablePath;
 	int storeSize;
 	int flushLimit;
+	bool saveCoordsAsDecimal = false;
 	bool convertBinToLaz = false;
 };
 
@@ -100,6 +101,7 @@ PotreeArguments parseArguments(int argc, char **argv){
 	args.addArgument("material", "RGB, ELEVATION, INTENSITY, INTENSITY_GRADIENT, CLASSIFICATION, RETURN_NUMBER, SOURCE, LEVEL_OF_DETAIL");
 	args.addArgument("store-size", "A node is split once more than store-size points are added. Reduce for better results at cost of performance. Default is 20000");
 	args.addArgument("flush-limit", "Flush after X points. Default is 10000000");
+	args.addArgument("save-coords-as-decimal", "Save XYZ as decimal numbers");
 	args.addArgument("convert-bin-to-laz", "Convert bin files to laz");
 
 	PotreeArguments a;
@@ -259,7 +261,8 @@ PotreeArguments parseArguments(int argc, char **argv){
      // do nothing
    }
 
-   a.convertBinToLaz = args.has("convert-bin-to-laz");
+    a.saveCoordsAsDecimal = args.has("save-coords-as-decimal");
+    a.convertBinToLaz     = args.has("convert-bin-to-laz");
 
 	return a;
 }
@@ -281,7 +284,8 @@ void printArguments(PotreeArguments &a){
 		cout << "scale:             \t" << a.scale << endl;
 		cout << "pageName:          \t" << a.pageName << endl;
 		cout << "projection:        \t" << a.projection << endl;
-		cout << "convertBinToLaz:   \t" << a.convertBinToLaz << endl;
+		cout << "saveCoordsAsDecimal: \t" << a.saveCoordsAsDecimal << endl;
+		cout << "convertBinToLaz:     \t" << a.convertBinToLaz << endl;
 		cout << endl;
 	}catch(exception &e){
 		cout << "ERROR: " << e.what() << endl;
@@ -326,11 +330,11 @@ int main(int argc, char **argv){
 		pc.showSkybox = a.showSkybox;
 		pc.storeSize = a.storeSize;
 		pc.flushLimit = a.flushLimit;
+		pc.saveCoordsAsDecimal = a.saveCoordsAsDecimal;
 
 		if (a.convertBinToLaz) {
 			pc.convert_bin_to_laz();
-		}
-		else {
+		} else {
 			pc.convert();
 		}
 		

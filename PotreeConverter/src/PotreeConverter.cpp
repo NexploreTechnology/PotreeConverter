@@ -12,7 +12,7 @@
 #include "PotreeException.h"
 #include "PotreeWriter.h"
 #include "LASPointWriter.hpp"
-#include "LASPointWriterModified.h"
+#include "LASPointWriterModified.hpp"
 #include "BINPointWriter.hpp"
 #include "BINPointReader.hpp"
 #include "PlyPointReader.h"
@@ -249,7 +249,11 @@ void PotreeConverter::prepare(){
 	this->sources = sourceFiles;
 
 	pointAttributes = PointAttributes();
-	pointAttributes.add(PointAttribute::POSITION_CARTESIAN);
+	if (saveCoordsAsDecimal) {
+		pointAttributes.add(PointAttribute::POSITION_CARTESIAN_DOUBLE);
+	} else {
+		pointAttributes.add(PointAttribute::POSITION_CARTESIAN);
+	}
 
 	bool addExtraAttributes = false;
 
@@ -781,16 +785,18 @@ void PotreeConverter::convert_bin_to_laz(){
 		fs::path laz_file = bins[i];
 		laz_file.replace_extension(".laz");
 
+        AABB chunkaabb;
 		BINPointReader reader(bin_file.string(), aabb, scale, pointAttributes);
 		std::vector<Point> points;
 		while(reader.readNextPoint()){
 			Point p = reader.getPoint();
 			points.push_back(p);
+            chunkaabb.update(p.position);
 		}
 		reader.close();
-		
+
 		LASPointWriterModified lasWriter;
-		lasWriter.writePoints(laz_file, aabb, scale, points);
+		lasWriter.writePoints(laz_file, chunkaabb, scale, points);
 	}
 
 	// Remove all .bin

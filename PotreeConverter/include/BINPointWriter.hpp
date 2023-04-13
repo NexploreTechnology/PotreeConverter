@@ -57,12 +57,15 @@ public:
 			PointAttribute attribute = attributes[i];
 
 			if(attribute == PointAttribute::POSITION_CARTESIAN){
-				//float pos[3] = {(float) point.x,(float)  point.y,(float)  point.z};
+				// float pos[3] = {(float) point.x,(float)  point.y,(float)  point.z};
 				int x = (int)((point.position.x - aabb.min.x) / scale);
 				int y = (int)((point.position.y - aabb.min.y) / scale);
 				int z = (int)((point.position.z - aabb.min.z) / scale);
 				int pos[3] = {x, y, z};
 				writer->write((const char*)pos, 3*sizeof(int));
+			}else if(attribute == PointAttribute::POSITION_CARTESIAN_DOUBLE){
+				double pos[3] = {point.position.x, point.position.y, point.position.z};
+				writer->write((const char*)pos, 3*sizeof(double));
 			}else if(attribute == PointAttribute::COLOR_PACKED){
 				unsigned char rgba[4] = {point.color.x, point.color.y, point.color.z, 255};
 				writer->write((const char*)rgba, 4*sizeof(unsigned char));
