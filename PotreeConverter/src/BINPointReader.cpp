@@ -93,11 +93,6 @@ bool BINPointReader::readNextPoint(){
 				point.position.x = (iBuffer[0] * scale) + aabb.min.x;
 				point.position.y = (iBuffer[1] * scale) + aabb.min.y;
 				point.position.z = (iBuffer[2] * scale) + aabb.min.z;
-			}else if(attribute == PointAttribute::POSITION_CARTESIAN_DOUBLE){
-				double* dBuffer = reinterpret_cast<double*>(buffer + offset);
-				point.position.x = dBuffer[0];
-				point.position.y = dBuffer[1];
-				point.position.z = dBuffer[2];
 			}else if(attribute == PointAttribute::COLOR_PACKED){
 				unsigned char* ucBuffer = reinterpret_cast<unsigned char*>(buffer+offset);
 				point.color.x = ucBuffer[0];
@@ -211,3 +206,9 @@ AABB BINPointReader::getAABB(){
 }
 
 }
+
+
+
+
+
+

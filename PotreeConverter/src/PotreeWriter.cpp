@@ -115,6 +115,8 @@ PointWriter *PWNode::createWriter(string path){
 	}
 
 	return writer;
+
+
 }
 
 void PWNode::loadFromDisk(){
@@ -136,15 +138,16 @@ void PWNode::loadFromDisk(){
 	isInMemory = true;
 }
 
-PWNode *PWNode::createChild(int childIndex){
+PWNode *PWNode::createChild(int childIndex ){
 	AABB cAABB = childAABB(aabb, childIndex);
 	PWNode *child = new PWNode(potreeWriter, childIndex, cAABB, level+1);
 	child->parent = this;
 	children[childIndex] = child;
+
 	return child;
 }
 
-void PWNode::split(){
+void PWNode ::split(){
 	children.resize(8, NULL);
 	numAccepted = 0;
 	string filepath = workDir() + "/data/" + path();
