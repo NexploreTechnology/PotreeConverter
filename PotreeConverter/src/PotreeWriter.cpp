@@ -1,25 +1,24 @@
-
-
 #include <cmath>
 #include <sstream>
 #include <stack>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
-
-#include <filesystem>
 
 #include "AABB.h"
 #include "SparseGrid.h"
 #include "stuff.h"
 #include "CloudJS.hpp"
 #include "PointAttributes.hpp"
-#include "PointReader.h"
-#include "PointWriter.hpp"
-#include "LASPointReader.h"
-#include "BINPointReader.hpp"
-#include "LASPointWriter.hpp"
-#include "BINPointWriter.hpp"
+// #include "PointReader.h"
+// #include "PointWriter.hpp"
+// #include "LASPointReader.h"
+// #include "BINPointReader.hpp"
+// #include "LASPointWriter.hpp"
+// #include "BINPointWriter.hpp"
+#include "NGP_LasPointReader.h"
+#include "NGP_LasPointWriter.h"
 #include "PotreeException.h"
 
 #include "PotreeWriter.h"
@@ -93,38 +92,34 @@ string PWNode::path(){
 	return path;
 }
 
-PointReader *PWNode::createReader(string path){
-	PointReader *reader = NULL;
-	OutputFormat outputFormat = this->potreeWriter->outputFormat;
-	if(outputFormat == OutputFormat::LAS || outputFormat == OutputFormat::LAZ){
-		reader = new LASPointReader(path);
-	}else if(outputFormat == OutputFormat::BINARY){
-		reader = new BINPointReader(path, aabb, potreeWriter->scale, this->potreeWriter->pointAttributes);
-	}
+// PointReader *PWNode::createReader(string path){
+// 	PointReader *reader = NULL;
+// 	OutputFormat outputFormat = this->potreeWriter->outputFormat;
+// 	if(outputFormat == OutputFormat::LAS || outputFormat == OutputFormat::LAZ){
+// 		reader = new LASPointReader(path);
+// 	}else if(outputFormat == OutputFormat::BINARY){
+// 		reader = new BINPointReader(path, aabb, potreeWriter->scale, this->potreeWriter->pointAttributes);
+// 	}
+// 	return reader;
+// }
 
-	return reader;
-}
-
-PointWriter *PWNode::createWriter(string path){
-	PointWriter *writer = NULL;
-	OutputFormat outputFormat = this->potreeWriter->outputFormat;
-	if(outputFormat == OutputFormat::LAS || outputFormat == OutputFormat::LAZ){
-		writer = new LASPointWriter(path, aabb, potreeWriter->scale);
-	}else if(outputFormat == OutputFormat::BINARY){
-		writer = new BINPointWriter(path, aabb, potreeWriter->scale, this->potreeWriter->pointAttributes);
-	}
-
-	return writer;
-
-
-}
+// PointWriter *PWNode::createWriter(string path){
+// 	PointWriter *writer = NULL;
+// 	OutputFormat outputFormat = this->potreeWriter->outputFormat;
+// 	if(outputFormat == OutputFormat::LAS || outputFormat == OutputFormat::LAZ){
+// 		writer = new LASPointWriter(path, aabb, potreeWriter->scale);
+// 	}else if(outputFormat == OutputFormat::BINARY){
+// 		writer = new BINPointWriter(path, aabb, potreeWriter->scale, this->potreeWriter->pointAttributes);
+// 	}
+// 	return writer;
+// }
 
 void PWNode::loadFromDisk(){
 
-	PointReader *reader = createReader(workDir() + "/data/" + path());
-	while(reader->readNextPoint()){
-		Point p = reader->getPoint();
+    NGP_LASPointReader reader;
+    std::vector<Point> points = reader.readPoints(workDir() + "/data/" + path());
 
+	for (Point p : points) {
 		if(isLeafNode()){
 			store.push_back(p);
 		}else{
@@ -132,9 +127,8 @@ void PWNode::loadFromDisk(){
 		}
 	}
 	grid->numAccepted = numAccepted;
-	reader->close();
-	delete reader;
-
+	// reader->close();
+	// delete reader;
 	isInMemory = true;
 }
 
@@ -143,7 +137,6 @@ PWNode *PWNode::createChild(int childIndex ){
 	PWNode *child = new PWNode(potreeWriter, childIndex, cAABB, level+1);
 	child->parent = this;
 	children[childIndex] = child;
-
 	return child;
 }
 
@@ -280,46 +273,39 @@ void PWNode::flush(){
 	std::function<void(vector<Point> &points, bool append)> writeToDisk = [&](vector<Point> &points, bool append){
 		string filepath = workDir() + "/data/" + path();
 		PointWriter *writer = NULL;
+        vector<Point> all_points;
 
-		if(!fs::exists(workDir() + "/data/" + hierarchyPath())){
+        if(!fs::exists(workDir() + "/data/" + hierarchyPath())){
 			fs::create_directories(workDir() + "/data/" + hierarchyPath());
 		}
 
-		if(append){
-			string temppath = workDir() + "/temp/prepend" + potreeWriter->getExtension();
-			if(fs::exists(filepath)){
-				fs::rename(fs::path(filepath), fs::path(temppath));
-			}
+        if(append){
+            string temppath = workDir() + "/temp/prepend" + potreeWriter->getExtension();
+            if(fs::exists(filepath)){
+                fs::rename(fs::path(filepath), fs::path(temppath));
+            }
+            if(fs::exists(temppath)){
+                NGP_LASPointReader reader;
+                all_points = reader.readPoints(temppath);
+                fs::remove(temppath);
+            }
+        }else{
+            if(fs::exists(filepath)){
+                fs::remove(filepath);
+            }
+        }
 
-			writer = createWriter(filepath);
-			if(fs::exists(temppath)){
-				PointReader *reader = createReader(temppath);
-				while(reader->readNextPoint()){
-                    Potree::Point pt = reader->getPoint();
-					writer->write(pt);
-				}
-				reader->close();
-				delete reader;
-				fs::remove(temppath);
-			}
-		}else{
-			if(fs::exists(filepath)){
-				fs::remove(filepath);
-			}
-			writer = createWriter(filepath);
-		}
+        for(auto p : points) {
+            all_points.push_back(p);
+        }
 
-		for(auto &e_c : points){
-			writer->write(e_c);
-		}
+        NGP_LASPointWriter lasWriter;
+        lasWriter.writePoints(filepath, aabb, potreeWriter->scale, all_points);
 
-		if(append && (writer->numPoints != this->numAccepted)){
-			cout << "writeToDisk " << writer->numPoints  << " != " << this->numAccepted << endl;
+		if(append && (all_points.size() != this->numAccepted)){  //TODO
+			cout << "writeToDisk " << all_points.size() << " != " << this->numAccepted << endl;
 			exit(1);
 		}
-
-		writer->close();
-		delete writer;
 	};
 
 

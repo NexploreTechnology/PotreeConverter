@@ -1,0 +1,90 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Site_LAZ",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/PotreeConverter/PotreeConverter",
+            "args": ["/mnt/c/Datasets/Nexplore/site.las", "-o", 
+                     "/mnt/c/Datasets/Nexplore/potreeNGP_site_LAZ/", 
+                     "--output-format", "LAZ", "--overwrite"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+
+        {
+            "name": "Good_LAZ",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/PotreeConverter/PotreeConverter",
+            "args": ["/mnt/c/Datasets/Nexplore/1.02GB_32,265,240.las", "-o", 
+                     "/mnt/c/Datasets/Nexplore/potreeNGP_1.02GB_32,265,240_LAZ/", 
+                     "--output-format", "LAZ"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+
+        {
+            "name": "Big_LAZ",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/PotreeConverter/PotreeConverter",
+            "args": ["/mnt/c/Datasets/Nexplore/Ahrtal_complete_2022-08-23.las", 
+                    "-o", "/mnt/c/Datasets/Nexplore/potreeNGP_Ahrtal_complete_2022-08-23_LAZ/", 
+                    "--output-format", "LAZ", 
+                    "--overwrite"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+
+    ]
+}
