@@ -36,7 +36,10 @@ private:
 	PointReader *createPointReader(string source, PointAttributes pointAttributes);
 	void prepare();
 	FileInfos computeInfos();
+	void printInfos(FileInfos infos);
 	void generatePage(string name);
+	void recalculateScale();
+	void recalculateDiagonal();
 
 public:
 	float spacing;
@@ -63,10 +66,12 @@ public:
     string executablePath;
 	int storeSize = 20'000;
 	int flushLimit = 10'000'000;
+	bool saveCoordsAsDecimal = false;
 
     PotreeConverter(string executablePath, string workDir, vector<string> sources);
 		
 	void convert();
+	void convert_bin_to_laz();
 
 };
 

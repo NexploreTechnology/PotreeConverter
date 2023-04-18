@@ -10,3 +10,4 @@ build/*
 .idea
 *.orig
 test/converted
+desktop.ini
