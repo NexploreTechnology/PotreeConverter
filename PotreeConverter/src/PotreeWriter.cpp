@@ -17,8 +17,8 @@
 // #include "BINPointReader.hpp"
 // #include "LASPointWriter.hpp"
 // #include "BINPointWriter.hpp"
-#include "NGP_LasPointReader.h"
-#include "NGP_LasPointWriter.h"
+#include "NGP_LASPointReader.h"
+#include "NGP_LASPointWriter.h"
 #include "PotreeException.h"
 
 #include "PotreeWriter.h"

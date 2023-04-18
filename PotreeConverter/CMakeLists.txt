@@ -16,6 +16,8 @@ SOURCE_GROUP("Header Files\\io" FILES
 	include/BINPointWriter.hpp
 	include/LASPointReader.h
 	include/LASPointWriter.hpp
+    include/NGP_LASPointReader.h
+    include/NGP_LASPointWriter.h
 	include/PlyPointReader.h
 	include/PointReader.h
 	include/PointWriter.hpp
