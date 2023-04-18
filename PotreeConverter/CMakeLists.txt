@@ -1,4 +1,4 @@
-project(PotreeConverter)
+project(PotreeConverter_BIN2LAZ)
 
 set(RAPIDJSON_INCLUDE_DIR lib/rapidjson/include)
 set(ARGUMENTS_INCLUDE_DIR lib/arguments)
@@ -34,13 +34,13 @@ SOURCE_GROUP("Source Files\\io" FILES
 SOURCE_GROUP("lib\\rapidjson" FILES ${lib_rapidjson_files})
 SOURCE_GROUP("lib\\arguments" FILES ${lib_argument_files})
 
-add_executable(PotreeConverter ${files} ${lib_rapidjson_files} ${lib_argument_files})
+add_executable(${PROJECT_NAME} ${files} ${lib_rapidjson_files} ${lib_argument_files})
 
-target_link_libraries(PotreeConverter ${LASZIP_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${LASZIP_LIBRARY})
 
 if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17 -pthread -lstdc++ -lm")
-    target_link_libraries(PotreeConverter -lstdc++fs)
+    target_link_libraries(${PROJECT_NAME} -lstdc++fs)
 endif()
 
-install(TARGETS PotreeConverter RUNTIME DESTINATION bin/ )
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin/)
