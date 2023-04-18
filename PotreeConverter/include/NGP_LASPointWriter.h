@@ -110,9 +110,9 @@ public:
             (*point_write).Z = std::round((p.position.z - header->z_offset) / header->z_scale_factor);
 
             // get color
-            (*point_write).rgb[0] = p.color.x; // * kColorEigenToLas;
-            (*point_write).rgb[1] = p.color.y; // * kColorEigenToLas;
-            (*point_write).rgb[2] = p.color.z; // * kColorEigenToLas;
+            (*point_write).rgb[0] = p.color.x * 255; // * kColorEigenToLas;
+            (*point_write).rgb[1] = p.color.y * 255; // * kColorEigenToLas;
+            (*point_write).rgb[2] = p.color.z * 255; // * kColorEigenToLas;
 
             // update classification
             (*point_write).classification = p.classification;

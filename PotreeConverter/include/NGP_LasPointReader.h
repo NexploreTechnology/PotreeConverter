@@ -93,9 +93,9 @@ public:
             p.position.y = header->y_scale_factor * point_read->Y + header->y_offset;
             p.position.z = header->z_scale_factor * point_read->Z + header->z_offset;
 
-            p.color.x = point_read->rgb[0]; // *= kColorLasToEigen;
-            p.color.y = point_read->rgb[1]; // *= kColorLasToEigen;
-            p.color.z = point_read->rgb[2]; // *= kColorLasToEigen;
+            p.color.x = point_read->rgb[0] / 255; // *= kColorLasToEigen;
+            p.color.y = point_read->rgb[1] / 255; // *= kColorLasToEigen;
+            p.color.z = point_read->rgb[2] / 255; // *= kColorLasToEigen;
 
             p.classification = point_read->classification;
 
